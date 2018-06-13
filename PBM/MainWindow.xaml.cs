@@ -84,7 +84,6 @@ namespace PBM
 
         private void Button_Click_4(object sender, RoutedEventArgs e) //Creates a .txt file
         {
-            SaveSource();
         }
 
         private void Button_Click_5(object sender, RoutedEventArgs e) //Copy
