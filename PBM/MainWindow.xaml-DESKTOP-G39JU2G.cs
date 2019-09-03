@@ -1,10 +1,21 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 
 namespace PBM
 {
@@ -14,15 +25,10 @@ namespace PBM
     public partial class MainWindow : Window
     {
         #region Variables
-        private string Source { get { return url.Text; } set { url.Text = value; } } //Gets and sets the Source textbox
-        private string Target { get { return url2.Text; } set { url2.Text = value; } } //Gets and sets the Target textbox
+        private string SourceURL { get { return url.Text; } set { url.Text = value; } } //Gets and sets the Source textbox
+        private string TargetURL { get { return url2.Text; } set { url2.Text = value; } } //Gets and sets the Target textbox
         private string Filter { get { return filter.Text; } set { filter.Text = value; } } //Gets and sets the Filter textbox
         private string Label { get { return label.Content.ToString(); } set { label.Content = value; } } //Gets and sets the Label
-        private int num = 0; //Declares integer "num" and gives it the value "0"
-        private int fNum = 0; //Declares integer "fNum" and gives it the value "0"
-        private string name; //Declares string "name"
-        private string messageBoxText; //Content of messageboxes
-        private string caption; //Caption of messageboxes
         private bool? FilterCheck { get { return filterCheck.IsChecked; } set { filterCheck.IsChecked = value; } } //Gets the filtercheck checkbox
         private bool? Contains; //Checks if a string contains a word
         private string source = "source.txt"; //Savefile for Source
@@ -31,8 +37,6 @@ namespace PBM
         private string tPath; //Target Path
         private string content; //Content of save files
         private long Byte; //Base size of files
-        private string size;
-        private string SB;
         private double KB; //Size in KB
         private double MB; //Size in MB
         private double GB; //Size in GB
@@ -40,8 +44,7 @@ namespace PBM
         private double fKB; //FreeSize in KB
         private double fMB; //FreeSize in MB
         private double fGB; //FreeSize in GB
-        private string[] arrFiles; //Puts all found files in an array
-        private string[] arrFolders; //Puts all found folders in an array
+        private string size; //Byte size plus "KB, MB, etc." string
         #endregion
 
         #region Actions
@@ -49,8 +52,8 @@ namespace PBM
         {
             InitializeComponent();
             ReadSaves();
-            sPath = Source;
-            tPath = Target;
+            sPath = SourceURL;
+            tPath = TargetURL;
             GetFiles();
             GetTargetFiles();
             GetDrives();
@@ -59,8 +62,8 @@ namespace PBM
         #region Buttons
         private void Button_Click(object sender, RoutedEventArgs e) //Get Files
         {
-            sPath = Source;
-            tPath = Target;
+            sPath = SourceURL;
+            tPath = TargetURL;
             GetFiles();
             GetTargetFiles();
         }
@@ -72,8 +75,8 @@ namespace PBM
 
         private void Button_Click_2(object sender, RoutedEventArgs e) //Delete selected files
         {
-            caption = "Hold up!";
-            messageBoxText = "Are you sure you want to delete these files?";
+            string caption = "Hold up!";
+            string messageBoxText = "Are you sure you want to delete these files?";
             MessageBoxButton button = MessageBoxButton.YesNo;
             MessageBoxImage icon = MessageBoxImage.Warning;
             MessageBoxResult result = MessageBox.Show(messageBoxText, caption, button, icon);
@@ -100,8 +103,8 @@ namespace PBM
 
         private void Button_Click_5(object sender, RoutedEventArgs e) //Copy
         {
-            caption = "Copy";
-            messageBoxText = "Are you sure you want to copy these files?";
+            string caption = "Copy";
+            string messageBoxText = "Are you sure you want to copy these files?";
             MessageBoxButton button = MessageBoxButton.YesNo;
             MessageBoxImage icon = MessageBoxImage.Question;
             //MessageBox.Show(messageBoxText, caption, button, icon);
@@ -119,8 +122,8 @@ namespace PBM
 
         private void Button_Click_6(object sender, RoutedEventArgs e) //Move
         {
-            caption = "Move";
-            messageBoxText = "Are you sure you want to move these files?";
+            string caption = "Move";
+            string messageBoxText = "Are you sure you want to move these files?";
             MessageBoxButton button = MessageBoxButton.YesNo;
             MessageBoxImage icon = MessageBoxImage.Question;
             //MessageBox.Show(messageBoxText, caption, button, icon);
@@ -152,7 +155,7 @@ namespace PBM
             {
                 foreach (string line in File.ReadLines(source))
                 {
-                    Source = line;
+                    SourceURL = line;
                 }
             }
         }
@@ -163,7 +166,7 @@ namespace PBM
             {
                 foreach (string line in File.ReadLines(target))
                 {
-                    Target = line;
+                    TargetURL = line;
                 }
             }
         }
@@ -172,14 +175,9 @@ namespace PBM
         {
             filter.IsEnabled = true;
         }
-
-        private void filterCheck_UnChecked(object sender, RoutedEventArgs e)
-        {
-            filter.IsEnabled = false;
-        }
         #endregion
 
-        #region SourceView
+        #region SourceView 
         private void sourceView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             foreach (Item viewItem in sourceView.SelectedItems)
@@ -213,7 +211,7 @@ namespace PBM
         {
             foreach (Item viewItem in sourceView.SelectedItems)
             {
-                Source = sPath + "\\" + viewItem.Name;
+                SourceURL = sPath + "\\" + viewItem.Name;
             }
         }
 
@@ -221,7 +219,7 @@ namespace PBM
         {
             foreach (Item viewItem in sourceView.SelectedItems)
             {
-                Target = Path.GetFullPath(viewItem.Name) + "\\" + viewItem.Name;
+                TargetURL = Path.GetFullPath(viewItem.Name) + "\\" + viewItem.Name;
             }
         }
 
@@ -244,7 +242,7 @@ namespace PBM
         {
             foreach (Item viewItem in targetView.SelectedItems)
             {
-                Process.Start(Target + "\\" + viewItem.Name.FirstOrDefault());
+                Process.Start(TargetURL + "\\" + viewItem.Name.FirstOrDefault());
             }
         }
 
@@ -252,7 +250,7 @@ namespace PBM
         {
             foreach (Item viewItem in targetView.SelectedItems)
             {
-                Source = Source + "\\" + viewItem.Name;
+                SourceURL = SourceURL + "\\" + viewItem.Name;
             }
         }
 
@@ -260,7 +258,7 @@ namespace PBM
         {
             foreach (Item viewItem in targetView.SelectedItems)
             {
-                Target = Target + "\\" + viewItem.Name;
+                TargetURL = TargetURL + "\\" + viewItem.Name;
             }
         }
         #endregion
@@ -282,7 +280,7 @@ namespace PBM
         {
             foreach (Item viewItem in driveView.SelectedItems)
             {
-                Target = viewItem.Name;
+                TargetURL = viewItem.Name;
             }
         }
 
@@ -290,7 +288,7 @@ namespace PBM
         {
             foreach (Item viewItem in driveView.SelectedItems)
             {
-                Source = viewItem.Name;
+                SourceURL = viewItem.Name;
             }
         }
 
@@ -313,222 +311,212 @@ namespace PBM
         #endregion
         #endregion
 
-        #region Magic
-        public void ErrMsg(Exception e)
-        {
-            caption = "Something went wrong";
-            messageBoxText = e.ToString();
-            MessageBoxButton button = MessageBoxButton.YesNo;
-            MessageBoxImage icon = MessageBoxImage.Error;
-        }
-
+        #region Methods
         public void GetFiles() //Gets all files in Source directory
         {
+            //SelItem selItem = new SelItem();
             string type;
+            int num = 0;
+            string name;
             sourceView.Items.Clear();
-            num = 0;
-            fNum = 0;
-            try {
-                if (!Directory.Exists(sPath)) //Checks if the directory doesn't exist
-                {
-                    caption = "Directory not found!";
-                    messageBoxText = "The directory cannot be found, would you want to create it?";
-                    MessageBoxButton button = MessageBoxButton.YesNo;
-                    MessageBoxImage icon = MessageBoxImage.Error;
-                    //MessageBox.Show(messageBoxText, caption, button, icon);
-                    MessageBoxResult result = MessageBox.Show(messageBoxText, caption, button, icon);
+            int fNum = 0;
+            if (!Directory.Exists(sPath)) //Checks if the directory doesn't exist
+            {
+                string caption = "Directory not found!";
+                string messageBoxText = "The directory cannot be found, would you want to create it?";
+                MessageBoxButton button = MessageBoxButton.YesNo;
+                MessageBoxImage icon = MessageBoxImage.Error;
+                //MessageBox.Show(messageBoxText, caption, button, icon);
+                MessageBoxResult result = MessageBox.Show(messageBoxText, caption, button, icon);
 
-                    switch (result)
-                    {
-                        case MessageBoxResult.Yes:
-                            CreateSourceFolder();
-                            break;
-                        case MessageBoxResult.No:
-                            break;
-                    }
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        CreateSourceFolder();
+                        break;
+                    case MessageBoxResult.No:
+                        break;
+                }
+            }
+            else
+            {
+                //files = Directory.GetFiles(Source); //Makes an array of all files in the directory 
+                //folders = Directory.GetDirectories(Source); //Makes an array of all folders in the directory
+                ////Array.Sort(files, new AlphanumComparatorFast());
+
+                string[] arrFiles = Directory.GetFiles(sPath);
+                string[] arrFolders = Directory.GetDirectories(sPath);
+
+                var fileList = arrFiles.ToList();
+                var folderList = arrFolders.ToList();
+                fileList.Sort();
+                folderList.Sort();
+
+                if (FilterCheck == true)
+                {
+                    type = " of type " + Filter;
+
                 }
                 else
                 {
-                    //files = Directory.GetFiles(Source); //Makes an array of all files in the directory 
-                    //folders = Directory.GetDirectories(Source); //Makes an array of all folders in the directory
-                    ////Array.Sort(files, new AlphanumComparatorFast());
-
-                    arrFiles = Directory.GetFiles(sPath);
-                    arrFolders = Directory.GetDirectories(sPath);
-
-                    var fileList = arrFiles.ToList();
-                    var folderList = arrFolders.ToList();
-                    fileList.Sort();
-                    folderList.Sort();
-
-                    if (FilterCheck == true)
+                    type = "";
+                }
+                if (folderList.Count == 0 && fileList.Count == 0)
+                {
+                    Label = "No files" + type + " were found";
+                }
+                else if (filterCheck.IsChecked == true)
+                {
+                    //Box = "These files were found:\n";
+                    if (folderList.Count > 0)
                     {
-                        type = " of type " + Filter;
+                        //Box += "-------------\nFolders:\n-------------\n";
 
-                    }
-                    else
-                    {
-                        type = "";
-                    }
-                    if (folderList.Count == 0 && fileList.Count == 0)
-                    {
-                        Label = "No files" + type + " were found";
-                    }
-                    else if (filterCheck.IsChecked == true)
-                    {
-                        //Box = "These files were found:\n";
-                        if (folderList.Count > 0)
+                        foreach (string folder in folderList)
                         {
-                            //Box += "-------------\nFolders:\n-------------\n";
-
-                            foreach (string folder in folderList)
-                            {
-                                Contains = folder.Contains(Filter);
-                                if (Contains == true)
-                                {
-                                    name = Path.GetFileName(folder);
-                                    DirectoryInfo dirInfo = new DirectoryInfo(name);
-                                    Byte = dirInfo.GetFiles().Sum(file => file.Length);
-                                    KB = Byte / 1024;
-                                    MB = KB / 1024;
-                                    GB = MB / 1024;
-                                    fNum++;
-                                    sourceView.Items.Add(new Item() { Name = name, ID = fNum, Size = MB.ToString() });
-                                    //Box += fNum + " " + name + "\n";
-                                }
-                            }
-                        }
-
-                        if (fileList.Count > 0)
-                        {
-                            //Box += "-------------\nFiles:\n-------------\n";
-
-                            foreach (string file in fileList)
-                            {
-                                Contains = file.Contains(Filter);
-                                if (Contains == true)
-                                {
-                                    name = Path.GetFileName(file);
-                                    FileInfo fileInfo = new FileInfo(Source + "\\" + name);
-                                    Byte = fileInfo.Length;
-                                    KB = Byte / 1024;
-                                    MB = KB / 1024;
-                                    GB = MB / 1024;
-                                    num++;
-                                    sourceView.Items.Add(new Item() { Name = name, ID = num, Size = MB.ToString() });
-                                    //Box += num + " " + name + "\n";
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (folderList.Count > 0)
-                        {
-                            //Box += "-------------\nFolders:\n-------------\n";
-
-                            foreach (string folder in folderList)
+                            Contains = folder.Contains(Filter);
+                            if (Contains == true)
                             {
                                 name = Path.GetFileName(folder);
-                                //DirectoryInfo dirInfo = new DirectoryInfo(folder);
-                                //Size = dirInfo.GetFiles().Sum(file => file.Length);
-                                Byte = folder.Length;
+                                DirectoryInfo dirInfo = new DirectoryInfo(name);
+                                Byte = dirInfo.GetFiles().Sum(file => file.Length);
                                 KB = Byte / 1024;
                                 MB = KB / 1024;
                                 GB = MB / 1024;
                                 fNum++;
-                                if (KB >= 1)
-                                {
-                                    if (MB >= 1)
-                                    {
-                                        if (GB >= 1)
-                                        {
-                                            size = Convert.ToInt32(GB).ToString() + "GB";
-                                        }
-                                        else
-                                        {
-                                            size = Convert.ToInt32(MB).ToString() + "MB";
-                                        }
-                                    }
-                                    else
-                                    {
-                                        size = Convert.ToInt32(KB).ToString() + "KB";
-                                    }
-                                }
-                                else
-                                {
-                                    size = Convert.ToInt32(Byte).ToString() + "B";
-                                }
-                                sourceView.Items.Add(new Item() { Name = name, ID = fNum, Size = size });
+                                sourceView.Items.Add(new Item() { Name = name, ID = fNum, Size = MB.ToString() });
                                 //Box += fNum + " " + name + "\n";
                             }
                         }
+                    }
 
-                        if (fileList.Count > 0)
+                    if (fileList.Count > 0)
+                    {
+                        //Box += "-------------\nFiles:\n-------------\n";
+
+                        foreach (string file in fileList)
                         {
-                            //Box += "-------------\nFiles:\n-------------\n";
-
-                            foreach (string file in fileList)
+                            Contains = file.Contains(Filter);
+                            if (Contains == true)
                             {
                                 name = Path.GetFileName(file);
-                                FileInfo fileInfo = new FileInfo(sPath + "\\" + name);
+                                FileInfo fileInfo = new FileInfo(SourceURL + "\\" + name);
                                 Byte = fileInfo.Length;
                                 KB = Byte / 1024;
                                 MB = KB / 1024;
                                 GB = MB / 1024;
                                 num++;
-
-                                if (KB >= 1)
-                                {
-                                    if (MB >= 1)
-                                    {
-                                        if (GB >= 1)
-                                        {
-                                            size = Convert.ToInt32(GB).ToString() + "GB";
-                                        }
-                                        else
-                                        {
-                                            size = Convert.ToInt32(MB).ToString() + "MB";
-                                        }
-                                    }
-                                    else
-                                    {
-                                        size = Convert.ToInt32(KB).ToString() + "KB";
-                                    }
-                                }
-                                else
-                                {
-                                    size = Convert.ToInt32(Byte).ToString() + "B";
-                                }
-                                sourceView.Items.Add(new Item() { ID = num, Name = name, Size = size });
+                                sourceView.Items.Add(new Item() { Name = name, ID = num, Size = MB.ToString() });
                                 //Box += num + " " + name + "\n";
                             }
                         }
                     }
-                    Label = num + " files and " + fNum + " folders were found in " + Source;
-                    //if(sourceView.SelectedIndex == 1)
-                    //{
-                    //    foreach (string file in files)
-                    //    {
-                    //        driveView.Items.Add(new Item() { ID = num, Name = name });
-                    //    }
-                    //}
                 }
+                else
+                {
+                    if (folderList.Count > 0)
+                    {
+                        //Box += "-------------\nFolders:\n-------------\n";
+
+                        foreach (string folder in folderList)
+                        {
+                            name = Path.GetFileName(folder);
+                            //DirectoryInfo dirInfo = new DirectoryInfo(folder);
+                            //Size = dirInfo.GetFiles().Sum(file => file.Length);
+                            Byte = folder.Length;
+                            KB = Byte / 1024;
+                            MB = KB / 1024;
+                            GB = MB / 1024;
+                            fNum++;
+                            if (KB >= 1)
+                            {
+                                if (MB >= 1)
+                                {
+                                    if (GB >= 1)
+                                    {
+                                        size = Convert.ToInt32(GB).ToString() + "GB";
+                                    }
+                                    else
+                                    {
+                                        size = Convert.ToInt32(MB).ToString() + "MB";
+                                    }
+                                }
+                                else
+                                {
+                                    size = Convert.ToInt32(KB).ToString() + "KB";
+                                }
+                            }
+                            else
+                            {
+                                size = Convert.ToInt32(Byte).ToString() + "B";
+                            }
+                            sourceView.Items.Add(new Item() { Name = name, ID = fNum, Size = size });
+                            //Box += fNum + " " + name + "\n";
+                        }
+                    }
+
+                    if (fileList.Count > 0)
+                    {
+                        //Box += "-------------\nFiles:\n-------------\n";
+
+                        foreach (string file in fileList)
+                        {
+                            name = Path.GetFileName(file);
+                            FileInfo fileInfo = new FileInfo(sPath + "\\" + name);
+                            Byte = fileInfo.Length;
+                            KB = Byte / 1024;
+                            MB = KB / 1024;
+                            GB = MB / 1024;
+                            num++;
+
+                            if(KB >= 1)
+                            {
+                                if (MB >= 1)
+                                {
+                                    if (GB >= 1)
+                                    {
+                                        size = Convert.ToInt32(GB).ToString() + "GB";
+                                    }
+                                    else
+                                    {
+                                        size = Convert.ToInt32(MB).ToString() + "MB";
+                                    }
+                                }
+                                else
+                                {
+                                    size = Convert.ToInt32(KB).ToString() + "KB";
+                                }
+                            }
+                            else
+                            {
+                                size = Convert.ToInt32(Byte).ToString() + "B";
+                            }
+                            sourceView.Items.Add(new Item() { ID = num, Name = name, Size = size });
+                            //Box += num + " " + name + "\n";
+                        }
+                    }
+                }
+                Label = num + " files and " + fNum + " folders were found in " + SourceURL;
+                //if(sourceView.SelectedIndex == 1)
+                //{
+                //    foreach (string file in files)
+                //    {
+                //        driveView.Items.Add(new Item() { ID = num, Name = name });
+                //    }
+                //}
             }
-            catch (Exception e)
-            {
-                ErrMsg(e);
-            }
-            }
+        }
+
         public void GetTargetFiles() //Gets all files in Target directory
         {
             targetView.Items.Clear();
-            arrFiles = Directory.GetFiles(tPath);
-            arrFolders = Directory.GetDirectories(tPath);
-            num = 0;
-            fNum = 0;
+            string[] arrFiles = Directory.GetFiles(tPath);
+            string[] arrFolders = Directory.GetDirectories(tPath);
+            int num = 0;
+            int fNum = 0;
             var files = arrFiles.ToList();
             var folders = arrFolders.ToList();
+            string name;
 
             foreach (string folder in folders)
             {
@@ -568,7 +556,7 @@ namespace PBM
             //List<Item> dirList = new List<Item>();
             string[] arrDrives = Directory.GetLogicalDrives();
             var drives = arrDrives.ToList();
-            num = 0;
+            int num = 0;
 
             foreach (string drive in drives)
             {
@@ -612,8 +600,8 @@ namespace PBM
         {
             foreach (Item viewItem in sourceView.SelectedItems)
             {
-                File.Delete(Source + "\\" + viewItem.Name);
-                Label = "Successfully removed " + viewItem.Name + " from " + Source;
+                File.Delete(SourceURL + "\\" + viewItem.Name);
+                Label = "Successfully removed " + viewItem.Name + " from " + SourceURL;
             }
         }
 
@@ -630,8 +618,8 @@ namespace PBM
             {
                 foreach (Item viewItem in targetView.SelectedItems)
                 {
-                    File.Delete(Target + "\\" + viewItem.Name);
-                    Label = "Successfully removed " + viewItem.Name + " from " + Target;
+                    File.Delete(TargetURL + "\\" + viewItem.Name);
+                    Label = "Successfully removed " + viewItem.Name + " from " + TargetURL;
                 }
             }
             catch
@@ -642,25 +630,25 @@ namespace PBM
 
         public void CreateSourceFolder() //Creates a new folder in Source
         {
-            Directory.CreateDirectory(Source);
+            Directory.CreateDirectory(SourceURL);
         }
 
         public void CreateTargetFolder() //Creates a new folder in Target
         {
-            Directory.CreateDirectory(Target);
+            Directory.CreateDirectory(TargetURL);
         }
 
         public void Open() // Opens the source directory in Windows Explorer
         {
-            Process.Start(Source);
+            Process.Start(SourceURL);
         }
 
         public void Copy() //Copies all selected files from Source to Target
         {
             foreach (Item viewItem in sourceView.SelectedItems)
             {
-                File.Copy(Source + "\\" + viewItem.Name, Target + "\\" + viewItem.Name);
-                Label = driveView.Items.Count + " files has been copied to " + Target;
+                File.Copy(SourceURL + "\\" + viewItem.Name, TargetURL + "\\" + viewItem.Name);
+                Label = driveView.Items.Count + " files has been copied to " + TargetURL;
             }
         }
 
@@ -668,21 +656,21 @@ namespace PBM
         {
             foreach (Item viewItem in sourceView.SelectedItems)
             {
-                File.Move(Source + "\\" + viewItem.Name, Target + "\\" + viewItem.Name);
-                Label = driveView.Items.Count + " files has been moved to " + Target;
+                File.Move(SourceURL + "\\" + viewItem.Name, TargetURL + "\\" + viewItem.Name);
+                Label = driveView.Items.Count + " files has been moved to " + TargetURL;
             }
         }
 
         public void SaveSource() //Saves a .txt file with the source path
         {
             //string file = "source.txt";
-            content = Source;
+            content = SourceURL;
             File.WriteAllText(source, content);
         }
 
         public void SaveTarget() //Saves a .txt file with the target path
         {
-            content = Target;
+            content = TargetURL;
             File.WriteAllText(target, content);
         }
 
@@ -692,18 +680,23 @@ namespace PBM
             {
                 foreach (string line in File.ReadLines(source))
                 {
-                    Source = line;
+                    SourceURL = line;
                 }
             }
             if (File.Exists(target))
             {
                 foreach (string line in File.ReadLines(target))
                 {
-                    Target = line;
+                    TargetURL = line;
                 }
             }
         }
         #endregion
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     public class Item

@@ -5,38 +5,80 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PBM"
         mc:Ignorable="d"
-        Title="MainWindow" MinHeight="350" Height="350" MinWidth="525" Width="525">
+        Title="Probably Better Manager" MinHeight="410" Height="410" MinWidth="760" Width="760">
     <Grid Background="white">
         <!--<TextBox Name="box" IsReadOnly="True" HorizontalAlignment="Right" Margin="0,10,9.667,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" MinWidth="255" MinHeight="301" Height="auto" Width="246"/>-->
-        <TextBox Name="url" HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" Text="d:\test" VerticalAlignment="Top" Width="138"/>
-        <Button Content="Get files" HorizontalAlignment="Left" Margin="11,94,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+        <TextBox Name="url" HorizontalAlignment="Left" Height="23" Margin="10,24,0,0" TextWrapping="Wrap" Text="C:\" VerticalAlignment="Top" Width="208"/>
+        <Button Content="Get files" HorizontalAlignment="Left" Margin="10,0,0,199.667" VerticalAlignment="Bottom" Width="75" Click="Button_Click"/>
         <Label Name="label" Content="label" HorizontalAlignment="Left" Margin="10,285,0,0" VerticalAlignment="Bottom"/>
-        <Button Content="Select files" HorizontalAlignment="Left" Margin="98,94,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
-        <TextBox Name="url2" HorizontalAlignment="Left" Height="23" Margin="10,38,0,0" TextWrapping="Wrap" Text="d:\" VerticalAlignment="Top" Width="138"/>
-        <ListView Name="listView" HorizontalAlignment="Right" MinHeight="301" Height="auto" Margin="0,10,9.667,0" VerticalAlignment="Top" Width="253">
+        <Button Content="Select files" HorizontalAlignment="Left" Margin="97,0,0,200.667" VerticalAlignment="Bottom" Width="75" Click="Button_Click_1"/>
+        <TextBox Name="url2" HorizontalAlignment="Left" Height="23" Margin="10,73,0,0" TextWrapping="Wrap" Text="C:\" VerticalAlignment="Top" Width="208"/>
+        <Button Content="Delete" HorizontalAlignment="Left" Margin="177,0,0,150.667" VerticalAlignment="Bottom" Width="41" Click="Button_Click_2"/>
+        <Button Content="Open" HorizontalAlignment="Left" Margin="177,0,0,175.667" VerticalAlignment="Bottom" Width="41" Click="Button_Click_3"/>
+        <TextBox Name="filter" IsEnabled="False" HorizontalAlignment="Left" Height="23" Margin="10,121,0,0" TextWrapping="Wrap" Text="Filter" VerticalAlignment="Top" Width="117"/>
+        <Button Content="Create" HorizontalAlignment="Left" Margin="177,0,0,199.667" VerticalAlignment="Bottom" Width="41" Click="Button_Click_4"/>
+        <Button Content="Copy" HorizontalAlignment="Left" Margin="177,0,0,124.667" VerticalAlignment="Bottom" Width="41" Click="Button_Click_5"/>
+        <Button Content="Move" HorizontalAlignment="Left" Margin="177,0,0,99.667" VerticalAlignment="Bottom" Width="41" Click="Button_Click_6"/>
+        <Button Content="Save" HorizontalAlignment="Left" Margin="141,2,0,0" VerticalAlignment="Top" Width="36" Click="Button_Click_7"/>
+        <Button Content="Save" HorizontalAlignment="Left" Margin="141,52,0,0" VerticalAlignment="Top" Width="36" Click="Button_Click_8"/>
+        <CheckBox Name="filterCheck" IsChecked="False" Content="CheckBox" HorizontalAlignment="Left" Margin="132,123,0,0" VerticalAlignment="Top" Unchecked="filterCheck_UnChecked"  Checked="filterCheck_Checked"/>
+        <Label Content="Source:" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Width="50"/>
+        <Label Content="Target:" HorizontalAlignment="Left" Margin="10,47,0,0" VerticalAlignment="Top" Width="50"/>
+        <Label Content="Filter:" HorizontalAlignment="Left" Margin="10,96,0,0" VerticalAlignment="Top" Width="50"/>
+        <Button Content="Reset" HorizontalAlignment="Left" Margin="182,2,0,0" VerticalAlignment="Top" Width="36" Click="Button_Click_9"/>
+        <Button Content="Reset" HorizontalAlignment="Left" Margin="182,52,0,0" VerticalAlignment="Top" Width="36" Click="Button_Click_10"/>
+        <ListView Name="sourceView" HorizontalAlignment="Right" MinHeight="337" Height="auto" Margin="0,24,267.333,0" VerticalAlignment="Top" Width="253" MouseDoubleClick="sourceView_MouseDoubleClick" SelectionChanged="sourceView_SelectionChanged">
+            <ListView.ContextMenu>
+                <ContextMenu Name="sourceMenu" StaysOpen="True">
+                    <MenuItem Header="Open" Click="openSource_Click"/>
+                    <MenuItem Header="Open in Explorer" Click="openSourceExp_Click"/>
+                    <MenuItem Header="Set Source" Click="setSource_Click_S"/>
+                    <MenuItem Header="Set Target" Click="setTarget_Click_S"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
+            <ListView.View>
+                <GridView AllowsColumnReorder="True">
+                    <GridViewColumn Header="ID" Width="auto" DisplayMemberBinding="{Binding ID}"/>
+                    <GridViewColumn Header="Name" Width="auto" DisplayMemberBinding="{Binding Name}" Selector.IsSelected="True"/>
+                    <GridViewColumn Header="Size" Width="auto" DisplayMemberBinding="{Binding Size}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ListView x:Name="driveView" HorizontalAlignment="Left"  Height="165" Margin="10,0,0,30.667" VerticalAlignment="Bottom" Width="162" SelectionChanged="driveView_SelectionChanged" MouseDoubleClick="driveView_MouseDoubleClick">
+            <ListView.ContextMenu>
+                <ContextMenu Name="driveMenu" StaysOpen="True">
+                    <MenuItem Header="Open" Click="open_Click"/>
+                    <MenuItem Header="Set Source" Click="setSource_Click"/>
+                    <MenuItem Header="Set Target" Click="setTarget_Click"/>
+                    <MenuItem Header="Open in Targetlist" Click="OpenInTarget_Click"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ID}"/>
                     <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Selector.IsSelected="True"/>
+                    <GridViewColumn Header="Size (GB)" DisplayMemberBinding="{Binding Size}"/>
+                    <GridViewColumn Header="Free (GB)" DisplayMemberBinding="{Binding FreeSpace}"/>
                 </GridView>
             </ListView.View>
         </ListView>
-        <ListView x:Name="listView_Copy" HorizontalAlignment="Left"  Height="171" Margin="11,119,0,0" VerticalAlignment="Top" Width="162">
+        <ListView x:Name="targetView" HorizontalAlignment="Right" MinHeight="337" Height="auto" Margin="0,24,9.333,0" VerticalAlignment="Top" Width="253" MouseDoubleClick="targetView_MouseDoubleClick" SelectionChanged="targetView_SelectionChanged">
+            <ListView.ContextMenu>
+                <ContextMenu Name="targetMenu" StaysOpen="True">
+                    <MenuItem Header="Open" Click="openTarget_Click"/>
+                    <MenuItem Header="Set Source" Click="setSource_Click_T"/>
+                    <MenuItem Header="Set Target" Click="setTarget_Click_T"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
             <ListView.View>
-                <GridView>
+                <GridView AllowsColumnReorder="True">
                     <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ID}"/>
                     <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Selector.IsSelected="True"/>
+                    <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size}"/>
                 </GridView>
             </ListView.View>
         </ListView>
-        <Button Content="Delete" HorizontalAlignment="Left" Margin="178,144,0,0" VerticalAlignment="Top" Width="41" Click="Button_Click_2"/>
-        <Button Content="Open" HorizontalAlignment="Left" Margin="178,119,0,0" VerticalAlignment="Top" Width="41" Click="Button_Click_3"/>
-        <TextBox Name="filter" HorizontalAlignment="Left" Height="23" Margin="10,66,0,0" TextWrapping="Wrap" Text="Filter" VerticalAlignment="Top" Width="138"/>
-        <Button Content="Create" HorizontalAlignment="Left" Margin="178,94,0,0" VerticalAlignment="Top" Width="41" Click="Button_Click_4"/>
-        <Button Content="Copy" HorizontalAlignment="Left" Margin="178,169,0,0" VerticalAlignment="Top" Width="41" Click="Button_Click_5"/>
-        <Button Content="Move" HorizontalAlignment="Left" Margin="178,195,0,0" VerticalAlignment="Top" Width="41" Click="Button_Click_6"/>
-        <Button Content="Save" HorizontalAlignment="Left" Margin="153,12,0,0" VerticalAlignment="Top" Width="66" Click="Button_Click_7"/>
-        <Button Content="Save" HorizontalAlignment="Left" Margin="153,38,0,0" VerticalAlignment="Top" Width="66"/>
-        <Button Content="Search" HorizontalAlignment="Left" Margin="153,66,0,0" VerticalAlignment="Top" Width="66"/>
+        <Label Content="Source:" HorizontalAlignment="Right" Margin="0,-1,470.333,0" VerticalAlignment="Top" Width="50"/>
+        <Label Content="Target:" HorizontalAlignment="Right" Margin="0,-1,212.333,0" VerticalAlignment="Top" Width="50"/>
     </Grid>
 </Window>
